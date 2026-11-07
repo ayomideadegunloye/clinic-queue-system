@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Providers')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+  <h1>Providers and hours</h1>
+  <div th:replace="~{fragments :: flash}"></div>
+
+  <div class="card" th:each="v : ${views}">
+    <div class="row">
+      <div>
+        <strong th:text="${v.provider.displayName}">Provider</strong>
+        <div class="muted" th:text="${v.provider.serviceLabel + (v.provider.active ? '' : ' · hidden from booking')}"></div>
+      </div>
+      <form th:action="@{/admin/providers/{id}/active(id=${v.provider.id})}" method="post">
+        <input type="hidden" name="active" th:value="${!v.provider.active}">
+        <button type="submit" class="secondary small" th:text="${v.provider.active} ? 'Hide' : 'Show'">Hide</button>
+      </form>
+    </div>
+    <div class="muted" th:if="${v.hours.isEmpty()}">No weekly hours yet. Nothing can be booked.</div>
+    <div class="row" th:each="h : ${v.hours}">
+      <span th:text="${@clinicTime.dayName(h.weekday) + ' ' + h.startTime + '–' + h.endTime + ', ' + h.slotMinutes + ' min slots'}"></span>
+      <form th:action="@{/admin/hours/{id}/delete(id=${h.id})}" method="post">
+        <button type="submit" class="danger small">Remove</button>
+      </form>
+    </div>
+    <form th:action="@{/admin/providers/{id}/hours(id=${v.provider.id})}" method="post" class="stack">
+      <div class="grid">
+        <div><label>Day
+          <select name="weekday">
+            <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option>
+            <option value="4">Thu</option><option value="5">Fri</option><option value="6">Sat</option><option value="7">Sun</option>
+          </select></label></div>
+        <div><label>From <input type="time" name="startTime" value="09:00" required></label></div>
+        <div><label>To <input type="time" name="endTime" value="17:00" required></label></div>
+        <div><label>Slot (min) <input type="number" name="slotMinutes" value="20" min="5" max="240" required></label></div>
+        <button type="submit" class="secondary">Add hours</button>
+      </div>
+      <p class="muted">Add two intervals on one day to model a break, e.g. 09:00–12:00 and 13:00–17:00.</p>
+    </form>
+  </div>
+
+  <h2>Add a provider</h2>
+  <form class="card" th:action="@{/admin/providers}" method="post">
+    <div class="grid">
+      <div><label for="pn">Name</label><input id="pn" name="displayName" maxlength="100" required></div>
+      <div><label for="ps">Service</label><input id="ps" name="serviceLabel" maxlength="100" required></div>
+      <button type="submit">Add provider</button>
+    </div>
+  </form>
+
+  <h2>Closures</h2>
+  <div class="empty" th:if="${closures.isEmpty()}">No upcoming closures.</div>
+  <div class="card row" th:each="c : ${closures}">
+    <span th:text="${@clinicTime.date(c.date) + ' · ' + (c.fullDay ? 'all day' : c.startTime + '–' + c.endTime) + ' · ' + c.reasonLabel}"></span>
+    <form th:action="@{/admin/closures/{id}/delete(id=${c.id})}" method="post">
+      <button type="submit" class="danger small">Remove</button>
+    </form>
+  </div>
+  <form class="card" th:action="@{/admin/closures}" method="post">
+    <div class="grid">
+      <div><label for="cd">Date</label><input id="cd" type="date" name="date" required></div>
+      <div><label for="cs">From (optional)</label><input id="cs" type="time" name="startTime"></div>
+      <div><label for="ce">To (optional)</label><input id="ce" type="time" name="endTime"></div>
+      <div><label for="cr">Reason</label><input id="cr" name="reasonLabel" maxlength="100" placeholder="Closed"></div>
+      <button type="submit">Add closure</button>
+    </div>
+    <p class="muted">Leave times empty to close the whole day.</p>
+  </form>
+
+  <h2>Add a staff account</h2>
+  <form class="card" th:action="@{/admin/staff}" method="post">
+    <div class="grid">
+      <div><label for="sn">Name</label><input id="sn" name="displayName" maxlength="100" required></div>
+      <div><label for="se">Email</label><input id="se" type="email" name="email" required></div>
+      <div><label for="sp">Temporary password</label><input id="sp" type="password" name="password" minlength="8" maxlength="72" required></div>
+      <div><label for="sr">Role</label>
+        <select id="sr" name="role"><option value="RECEPTIONIST">Receptionist</option><option value="ADMIN">Administrator</option></select></div>
+      <button type="submit">Create account</button>
+    </div>
+  </form>
+</main>
+<script th:replace="~{fragments :: busy}"></script>
+</body>
+</html>

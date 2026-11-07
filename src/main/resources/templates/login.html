@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Sign in')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+  <h1>Sign in</h1>
+  <div th:replace="~{fragments :: flash}"></div>
+  <div class="notice error" role="alert" th:if="${param.error}">Email or password is incorrect.</div>
+  <div class="notice success" role="status" th:if="${param.logout}">You have been signed out.</div>
+  <form class="card stack" th:action="@{/login}" method="post">
+    <div><label for="username">Email</label><input id="username" name="username" type="email" autocomplete="username" required></div>
+    <div><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <button type="submit">Sign in</button>
+    <p class="muted">New patient? <a th:href="@{/register}">Create an account</a></p>
+  </form>
+</main>
+<script th:replace="~{fragments :: busy}"></script>
+</body>
+</html>

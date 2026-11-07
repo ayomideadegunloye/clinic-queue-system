@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' · Community Clinic'">Community Clinic</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar" th:fragment="nav">
+  <a class="brand" th:href="@{/}">Community Clinic</a>
+  <nav sec:authorize="isAuthenticated()">
+    <a sec:authorize="hasAnyRole('PATIENT','ADMIN')" th:href="@{/book}">Book</a>
+    <a sec:authorize="hasAnyRole('PATIENT','ADMIN')" th:href="@{/appointments}">My appointments</a>
+    <a sec:authorize="hasAnyRole('RECEPTIONIST','ADMIN')" th:href="@{/staff/queue}">Queue</a>
+    <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/providers}">Providers</a>
+    <form th:action="@{/logout}" method="post" style="margin:0">
+      <button class="secondary small" type="submit">Sign out</button>
+    </form>
+  </nav>
+</header>
+<div th:fragment="flash">
+  <div class="notice error" role="alert" th:if="${error}" th:text="${error}"></div>
+  <div class="notice success" role="status" th:if="${success}" th:text="${success}"></div>
+</div>
+<script th:fragment="busy">
+  document.addEventListener('submit', function (e) {
+    var b = e.target.querySelector('button[type=submit]');
+    if (b) { setTimeout(function () { b.disabled = true; }, 0); }
+  });
+</script>
+</body>
+</html>

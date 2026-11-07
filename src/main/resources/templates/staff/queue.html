@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Queue')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+  <h1 th:text="${isToday} ? 'Today’s queue' : 'Queue'">Queue</h1>
+  <p class="muted" th:text="${@clinicTime.date(date)}">Date</p>
+  <div class="datenav">
+    <a class="btn secondary" th:href="@{/staff/queue(date=${prev})}">Previous day</a>
+    <a class="btn secondary" th:href="@{/staff/queue}">Today</a>
+    <a class="btn secondary" th:href="@{/staff/queue(date=${next})}">Next day</a>
+  </div>
+  <div th:replace="~{fragments :: flash}"></div>
+
+  <h2>Add a walk-in</h2>
+  <form class="card" th:action="@{/staff/walk-in}" method="post">
+    <div class="grid">
+      <div><label for="displayName">Name</label><input id="displayName" name="displayName" maxlength="100" required></div>
+      <div><label for="contact">Contact (optional)</label><input id="contact" name="contact" maxlength="100"></div>
+      <div>
+        <label for="providerId">Provider</label>
+        <select id="providerId" name="providerId" required>
+          <option th:each="p : ${providers}" th:value="${p.id}" th:text="${p.displayName}"></option>
+        </select>
+      </div>
+      <button type="submit">Add to queue</button>
+    </div>
+    <p class="muted">Name and optional contact only. Do not record medical details.</p>
+  </form>
+
+  <h2>Visits</h2>
+  <div class="empty" th:if="${items.isEmpty()}">No visits for this day yet.</div>
+  <div class="card" th:each="i : ${items}">
+    <div class="row">
+      <strong th:text="${i.patientName}">Patient</strong>
+      <span class="chip" th:classappend="'s-' + ${i.status}" th:text="${i.status}">WAITING</span>
+    </div>
+    <div th:text="${i.providerName + ' · ' + i.serviceLabel}">Provider</div>
+    <div class="muted">
+      <span th:if="${i.scheduledAt != null}" th:text="'Scheduled ' + ${@clinicTime.time(i.scheduledAt)}"></span>
+      <span th:if="${i.walkIn}">Walk-in</span>
+      <span th:if="${i.checkedInAt != null}" th:text="'· checked in ' + ${@clinicTime.time(i.checkedInAt)}"></span>
+      <span th:if="${i.position != null}" th:text="'· queue position ' + ${i.position}"></span>
+    </div>
+    <div class="actions">
+      <form th:each="a : ${i.actions}" th:action="@{/staff/queue/{id}/status(id=${i.id})}" method="post">
+        <input type="hidden" name="status" th:value="${a.target}">
+        <input type="hidden" name="date" th:value="${date}">
+        <button type="submit" class="small"
+                th:classappend="${a.target.name() == 'CANCELLED' or a.target.name() == 'NO_SHOW'} ? 'danger' : ''"
+                th:text="${a.label}">Action</button>
+      </form>
+    </div>
+  </div>
+</main>
+<script th:replace="~{fragments :: busy}"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Book')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+  <h1>Book an appointment</h1>
+  <div th:replace="~{fragments :: flash}"></div>
+
+  <form class="card" th:action="@{/book}" method="get">
+    <div class="grid">
+      <div>
+        <label for="providerId">Provider</label>
+        <select id="providerId" name="providerId" required>
+          <option value="" th:if="${providerId == null}">Choose…</option>
+          <option th:each="p : ${providers}" th:value="${p.id}" th:selected="${p.id == providerId}"
+                  th:text="${p.displayName + ' · ' + p.serviceLabel}"></option>
+        </select>
+      </div>
+      <div>
+        <label for="date">Date</label>
+        <input id="date" name="date" type="date" th:value="${date}" th:min="${today}" required>
+      </div>
+      <button type="submit">Show times</button>
+    </div>
+  </form>
+
+  <div class="empty" th:if="${providers.isEmpty()}">No providers are available for booking right now.</div>
+
+  <th:block th:if="${providerId != null}">
+    <h2 th:text="'Open times on ' + ${@clinicTime.date(date)}">Open times</h2>
+    <div class="empty" th:if="${slots.isEmpty()}">
+      No open times that day. The provider may be off, the clinic closed, or the day fully booked. Try another date.
+    </div>
+    <div class="slots" th:unless="${slots.isEmpty()}">
+      <form th:each="s : ${slots}" th:action="@{/book}" method="post">
+        <input type="hidden" name="providerId" th:value="${providerId}">
+        <input type="hidden" name="startAt" th:value="${s.startAt}">
+        <button type="submit" class="secondary" th:text="${@clinicTime.time(s.startAt)}">09:00</button>
+      </form>
+    </div>
+    <p class="muted">Times are shown in the clinic's timezone.</p>
+  </th:block>
+</main>
+<script th:replace="~{fragments :: busy}"></script>
+</body>
+</html>

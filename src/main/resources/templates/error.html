@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Something went wrong')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+  <h1>That did not work</h1>
+  <div class="card stack">
+    <p th:if="${status == 403}">You do not have access to this page.</p>
+    <p th:if="${status == 404}">We could not find that page.</p>
+    <p th:unless="${status == 403 or status == 404}">Something went wrong on our side. Please try again.</p>
+    <a class="btn secondary" th:href="@{/}">Back to start</a>
+  </div>
+</main>
+</body>
+</html>

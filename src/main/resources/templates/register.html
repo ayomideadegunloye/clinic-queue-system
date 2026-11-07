@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Create account')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+  <h1>Create a patient account</h1>
+  <div th:replace="~{fragments :: flash}"></div>
+  <form class="card stack" th:action="@{/register}" method="post">
+    <div>
+      <label for="displayName">Your name</label>
+      <input id="displayName" name="displayName" th:value="${displayName}" maxlength="100" required>
+      <div class="field-error" th:if="${fieldErrors != null and fieldErrors['displayName']}" th:text="${fieldErrors['displayName']}"></div>
+    </div>
+    <div>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" th:value="${email}" autocomplete="username" required>
+      <div class="field-error" th:if="${fieldErrors != null and fieldErrors['email']}" th:text="${fieldErrors['email']}"></div>
+    </div>
+    <div>
+      <label for="password">Password (8 or more characters)</label>
+      <input id="password" name="password" type="password" minlength="8" maxlength="72" autocomplete="new-password" required>
+      <div class="field-error" th:if="${fieldErrors != null and fieldErrors['password']}" th:text="${fieldErrors['password']}"></div>
+    </div>
+    <p class="muted">We only keep your name and email. Please do not enter medical information anywhere in this app.</p>
+    <button type="submit">Create account</button>
+    <p class="muted">Already registered? <a th:href="@{/login}">Sign in</a></p>
+  </form>
+</main>
+<script th:replace="~{fragments :: busy}"></script>
+</body>
+</html>

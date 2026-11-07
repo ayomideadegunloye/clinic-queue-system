@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('My appointments')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+  <h1>My appointments</h1>
+  <div th:replace="~{fragments :: flash}"></div>
+  <div class="empty" th:if="${appointments.isEmpty()}">
+    You have no appointments yet. <a th:href="@{/book}">Book one</a>.
+  </div>
+  <div class="card" th:each="a : ${appointments}">
+    <div class="row">
+      <strong th:text="${@clinicTime.format(a.startAt)}">Mon 9 Nov, 09:00</strong>
+      <span class="chip" th:classappend="'s-' + ${a.status}" th:text="${a.status}">BOOKED</span>
+    </div>
+    <div th:text="${a.providerName + ' · ' + a.serviceLabel}">Provider</div>
+    <div class="muted" th:if="${a.queuePosition != null}"
+         th:text="'Estimated place in line: ' + ${a.queuePosition} + '. This can change as the clinic day moves.'"></div>
+    <div class="muted" th:if="${a.status.name() == 'CALLED'}">You have been called. Please go to the desk.</div>
+    <div class="actions" th:if="${a.cancellable}">
+      <form th:action="@{/appointments/{id}/cancel(id=${a.id})}" method="post">
+        <button type="submit" class="danger small">Cancel appointment</button>
+      </form>
+    </div>
+  </div>
+</main>
+<script th:replace="~{fragments :: busy}"></script>
+</body>
+</html>
